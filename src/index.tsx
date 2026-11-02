@@ -5,11 +5,17 @@ import {
 	PanelSectionRow,
 	ServerAPI,
 	staticClasses,
+	ToggleField,
 } from "decky-frontend-lib"
-import React from "react"
+import React, { useState } from "react"
 import { GiPerspectiveDiceSixFacesRandom } from "react-icons/gi"
 
-import { EXCLUDE_COLLECTION_IDS, navigateToRandomGame } from "./utils"
+import {
+	EXCLUDE_COLLECTION_IDS,
+	loadAutoLaunch,
+	navigateToRandomGame,
+	saveAutoLaunch,
+} from "./utils"
 
 const DeckRoulette = ({ serverApi }: { serverApi: ServerAPI }) => {
 	const { collectionStore }: { collectionStore: CollectionStore } =
@@ -25,6 +31,10 @@ const DeckRoulette = ({ serverApi }: { serverApi: ServerAPI }) => {
 	]
 
 	const myGamesCollection = collectionStore.myGamesCollection
+
+	const installedIds = new Set(allInstalled.map((app) => app.appid))
+
+	const [autoLaunch, setAutoLaunch] = useState<boolean>(loadAutoLaunch())
 
 	/* Uncomment to enable in-plugin custom lists
 	const [customLists, setCustomLists] = useState<{
@@ -63,13 +73,26 @@ const DeckRoulette = ({ serverApi }: { serverApi: ServerAPI }) => {
 	return (
 		<div>
 			<PanelSection title="Random Game">
+				<PanelSectionRow>
+					<ToggleField
+						label="Auto-launch game"
+						description="Launch the random game right away (installed games only)"
+						checked={autoLaunch}
+						onChange={(value) => {
+							setAutoLaunch(value)
+							saveAutoLaunch(value)
+						}}
+					/>
+				</PanelSectionRow>
 				{localGames ? (
 					<PanelSectionRow>
 						<ButtonItem
 							layout="below"
 							onClick={() =>
 								navigateToRandomGame(
-									allInstalled.map((app) => app.appid)
+									allInstalled.map((app) => app.appid),
+									autoLaunch,
+									installedIds
 								)
 							}
 						>
@@ -84,7 +107,9 @@ const DeckRoulette = ({ serverApi }: { serverApi: ServerAPI }) => {
 							navigateToRandomGame(
 								myGamesCollection.visibleApps.map(
 									(app) => app.appid
-								)
+								),
+								autoLaunch,
+								installedIds
 							)
 						}
 					>
@@ -154,7 +179,9 @@ const DeckRoulette = ({ serverApi }: { serverApi: ServerAPI }) => {
 										navigateToRandomGame(
 											collection.visibleApps.map(
 												(app) => app.appid
-											)
+											),
+											autoLaunch,
+											installedIds
 										)
 									}
 								>

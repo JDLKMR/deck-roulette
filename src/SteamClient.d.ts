@@ -3,6 +3,12 @@
 declare namespace SteamClient {
 	const Apps: {
 		GetAllShortcuts(): Promise<Shortcut[]>
+		RunGame(
+			gameId: string,
+			unused: string,
+			launchOption: number,
+			unused2: number
+		): void
 		RegisterForGameActionStart(
 			callback: (
 				actionType: number,
@@ -222,4 +228,8 @@ type CollectionStore = {
 	myGamesCollection: SteamCollection
 	deckDesktopApps: SteamCollection
 	localGamesCollection: SteamCollection
+}
+
+type AppStore = {
+	GetAppOverviewByAppID: (appId: number) => SteamAppOverview | null
 }
